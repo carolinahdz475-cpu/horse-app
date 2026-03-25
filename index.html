@@ -2,32 +2,57 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#333">
-
 <title>Horse App</title>
 
 <style>
 body { font-family: Arial; margin:0; background:#f2f2f2; text-align:center; }
+
 .header { background:#333;color:white;padding:12px;font-weight:bold; }
-#totalGeneral { background:white;padding:10px;font-weight:bold;border-bottom:1px solid #ccc; }
+
+#totalGeneral {
+  background:white;
+  padding:10px;
+  font-weight:bold;
+  border-bottom:1px solid #ccc;
+}
+
 .legend { background:#fff;padding:6px; }
+
 .menu { display:flex; }
 .menu button { flex:1;padding:10px;border:none;background:#444;color:white; }
+
 .area { padding:15px;overflow-x:auto; }
+
 .row { display:flex; gap:4px; }
-.cell { width:28px;height:28px;border:1px solid #ccc;font-size:10px;display:flex;align-items:center;justify-content:center;background:white; }
+
+.cell {
+  width:28px;height:28px;border:1px solid #ccc;
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:white;
+}
+
 .tackron { background:red;color:white;font-weight:bold; }
 .vacio { background:skyblue;color:white;font-weight:bold; }
+
 .btn { margin:10px;padding:8px 15px;border:none;background:#333;color:white;border-radius:6px; }
-.totales { margin:15px;background:white;padding:10px;border-radius:10px;display:inline-block; }
+
+.totales {
+  margin:15px;
+  background:white;
+  padding:10px;
+  border-radius:10px;
+  display:inline-block;
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">Horse App 🐴</div>
+
 <div id="totalGeneral"></div>
 
 <div class="legend">
@@ -43,15 +68,10 @@ body { font-family: Arial; margin:0; background:#f2f2f2; text-align:center; }
 <div class="area" id="area"></div>
 
 <button class="btn" onclick="resetear()">Resetear</button>
-<div id="status" style="font-size:12px;color:green;"></div>
-<div class="totales" id="totales"></div>
+
+<div id="totales" class="totales"></div>
 
 <script>
-
-// 🔥 esto hace que funcione como app offline
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
 
 let actual="north";
 let total={ north:114, sand:208, gp:176 };
@@ -59,232 +79,14 @@ let data={};
 
 function cambiar(area){
   actual=area;
-  data=JSON.parse(localStorage.getItem(actual))||{};
+  data=JSON.parse(localStorage.getItem(area))||{};
   document.getElementById("area").innerHTML="";
   crear();
   calcular();
   calcularGeneral();
 }
 
-function crear(){
-  let cont=document.getElementById("area");
-  if(actual=="north") crearNorth(cont);
-  if(actual=="sand") crearSand(cont);
-  if(actual=="gp") crearGP(cont);
-}
-
-/* ===== NORTH ===== */
-
-function crearNorth(cont){
-
-  let container=document.createElement("div");
-  container.style.display="flex";
-  container.style.gap="120px";
-  container.style.minWidth="900px";
-
-  let left=document.createElement("div");
-  left.style.display="flex";
-  left.style.flexDirection="column";
-  left.style.gap="15px";
-
-  let right=document.createElement("div");
-  right.style.display="flex";
-  right.style.flexDirection="column";
-  right.style.gap="15px";
-
-  left.appendChild(crearVertical("C",10));
-  left.appendChild(crearVertical("B",20));
-  left.appendChild(crearVertical("A",20));
-
-  right.appendChild(crearHorizontal("F",10));
-  right.appendChild(crearHorizontal("E",22));
-  right.appendChild(crearHorizontal("D",22));
-
-  container.appendChild(left);
-  container.appendChild(right);
-
-  cont.appendChild(container);
-}
-
-function crearVertical(letra,cantidad){
-  let block=document.createElement("div");
-
-  let title=document.createElement("div");
-  title.innerText=letra;
-  title.style.fontWeight="bold";
-
-  let col=document.createElement("div");
-
-  let mitad=cantidad/2;
-
-  for(let i=1;i<=mitad;i++){
-    let row=document.createElement("div");
-    row.className="row";
-
-    celda(letra+i,row);
-    celda(letra+(cantidad+1-i),row);
-
-    col.appendChild(row);
-  }
-
-  block.appendChild(title);
-  block.appendChild(col);
-
-  return block;
-}
-
-function crearHorizontal(letra,cantidad){
-  let block=document.createElement("div");
-
-  let title=document.createElement("div");
-  title.innerText=letra;
-  title.style.fontWeight="bold";
-
-  let top=document.createElement("div");
-  top.className="row";
-
-  let bottom=document.createElement("div");
-  bottom.className="row";
-
-  let mitad=cantidad/2;
-
-  for(let i=1;i<=mitad;i++) celda(letra+i,top);
-  for(let i=cantidad;i>mitad;i--) celda(letra+i,bottom);
-
-  block.appendChild(title);
-  block.appendChild(top);
-  block.appendChild(bottom);
-
-  return block;
-}
-
-/* ===== SAND ===== */
-
-function crearSand(cont){
-
-  let grupos=[
-    ["AA","BB","CC","DD"],
-    ["EE","FF","GG","HH"],
-    ["II","JJ","KK","LL"]
-  ];
-
-  grupos.forEach(g=>{
-    let fila=document.createElement("div");
-
-    fila.style.display="flex";
-    fila.style.gap="40px";
-    fila.style.marginBottom="40px";
-
-    g.forEach(l=>{
-      let col=document.createElement("div");
-      col.style.display="flex";
-      col.style.flexDirection="column";
-      col.style.alignItems="center";
-
-      let t=document.createElement("div");
-      t.innerText=l;
-      t.style.fontWeight="bold";
-
-      let r1=document.createElement("div");
-      r1.className="row";
-
-      let r2=document.createElement("div");
-      r2.className="row";
-
-      for(let i=1;i<=8;i++) celda(l+i,r1);
-      for(let i=16;i>=9;i--) celda(l+i,r2);
-
-      col.appendChild(t);
-      col.appendChild(r1);
-      col.appendChild(r2);
-
-      fila.appendChild(col);
-    });
-
-    cont.appendChild(fila);
-  });
-
-  let lot=document.createElement("div");
-  lot.innerText="DAY USE LOT";
-  lot.style.border="2px solid black";
-  lot.style.height="90px";
-  lot.style.width="220px";
-  lot.style.margin="30px auto";
-  lot.style.display="flex";
-  lot.style.alignItems="center";
-  lot.style.justifyContent="center";
-
-  cont.appendChild(lot);
-
-  let title=document.createElement("div");
-  title.innerText="MM";
-  title.style.fontWeight="bold";
-
-  cont.appendChild(title);
-
-  for(let i=1;i<=8;i++){
-    let row=document.createElement("div");
-    row.className="row";
-
-    celda("MM"+i,row);
-    celda("MM"+(17-i),row);
-
-    cont.appendChild(row);
-  }
-}
-
-/* ===== GP ===== */
-
-function crearGP(cont){
-
-  let wrapper=document.createElement("div");
-  wrapper.style.display="flex";
-  wrapper.style.gap="20px";
-
-  let arena=document.createElement("div");
-  arena.innerText="Grand Prix Arena";
-  arena.style.width="180px";
-  arena.style.height="420px";
-  arena.style.border="2px solid black";
-  arena.style.display="flex";
-  arena.style.alignItems="center";
-  arena.style.justifyContent="center";
-
-  wrapper.appendChild(arena);
-
-  let stalls=document.createElement("div");
-
-  let filas=["J","K","L","M","N","O","P","Q","R","S","T"];
-
-  filas.forEach(f=>{
-    let block=document.createElement("div");
-
-    let label=document.createElement("div");
-    label.innerText=f;
-    label.style.fontWeight="bold";
-
-    let r1=document.createElement("div");
-    r1.className="row";
-
-    let r2=document.createElement("div");
-    r2.className="row";
-
-    for(let i=1;i<=8;i++) celda(f+i,r1);
-    for(let i=16;i>=9;i--) celda(f+i,r2);
-
-    block.appendChild(label);
-    block.appendChild(r1);
-    block.appendChild(r2);
-
-    stalls.appendChild(block);
-  });
-
-  wrapper.appendChild(stalls);
-  cont.appendChild(wrapper);
-}
-
-/* ===== CELDA ===== */
-
+// ===== CELDA =====
 function celda(id,row){
   let d=document.createElement("div");
 
@@ -313,32 +115,266 @@ function actualizar(d,id){
 
 function guardar(){
   localStorage.setItem(actual, JSON.stringify(data));
-  document.getElementById("status").innerText="✔️ Guardado";
 }
 
-function calcular(){
-  let t=0,v=0;
-  Object.values(data).forEach(x=>{ if(x==1)t++; if(x==2)v++; });
-  let as=total[actual]-t-v;
+// ===== VERTICAL =====
+function crearVertical(letra,cantidad){
 
-  let c=(as+t)*15;
-  let p=as*10;
+  let block=document.createElement("div");
+
+  let title=document.createElement("div");
+  title.innerText=letra;
+  title.style.fontWeight="bold";
+
+  let col=document.createElement("div");
+
+  let mitad=cantidad/2;
+  let izq=0, der=0;
+
+  for(let i=1;i<=mitad;i++){
+
+    let row=document.createElement("div");
+    row.className="row";
+
+    let id1=letra+i;
+    let id2=letra+(cantidad+1-i);
+
+    celda(id1,row);
+    celda(id2,row);
+
+    if((data[id1]||0)==0) izq++;
+    if((data[id2]||0)==0) der++;
+
+    col.appendChild(row);
+  }
+
+  let totalRow=document.createElement("div");
+  totalRow.innerHTML = `${izq} ${der} | ${izq+der}`;
+  totalRow.style.fontWeight="bold";
+
+  block.appendChild(title);
+  block.appendChild(col);
+  block.appendChild(totalRow);
+
+  return block;
+}
+
+// ===== HORIZONTAL =====
+function crearHorizontal(letra,cantidad){
+
+  let block=document.createElement("div");
+
+  let title=document.createElement("div");
+  title.innerText=letra;
+  title.style.fontWeight="bold";
+
+  let topRow=document.createElement("div");
+  let bottomRow=document.createElement("div");
+
+  topRow.style.display="flex";
+  bottomRow.style.display="flex";
+
+  let top=document.createElement("div");
+  let bottom=document.createElement("div");
+
+  top.className="row";
+  bottom.className="row";
+
+  let mitad=cantidad/2;
+  let topCount=0, bottomCount=0;
+
+  for(let i=1;i<=mitad;i++){
+    let id=letra+i;
+    celda(id,top);
+    if((data[id]||0)==0) topCount++;
+  }
+
+  for(let i=cantidad;i>mitad;i--){
+    let id=letra+i;
+    celda(id,bottom);
+    if((data[id]||0)==0) bottomCount++;
+  }
+
+  let numTop=document.createElement("div");
+  numTop.innerText=topCount;
+  numTop.style.fontWeight="bold";
+  numTop.style.marginRight="5px";
+
+  let numBottom=document.createElement("div");
+  numBottom.innerText=bottomCount;
+  numBottom.style.fontWeight="bold";
+  numBottom.style.marginRight="5px";
+
+  topRow.appendChild(numTop);
+  topRow.appendChild(top);
+
+  bottomRow.appendChild(numBottom);
+  bottomRow.appendChild(bottom);
+
+  let total=document.createElement("div");
+  total.innerHTML = `<div style="width:30px;text-align:center;">
+  <hr style="margin:2px 0;">
+  ${topCount+bottomCount}
+  </div>`;
+
+  block.appendChild(title);
+  block.appendChild(topRow);
+  block.appendChild(bottomRow);
+  block.appendChild(total);
+
+  return block;
+}
+
+// ===== NORTH =====
+function crearNorth(cont){
+
+  let container=document.createElement("div");
+  container.style.display="flex";
+  container.style.gap="100px";
+
+  let left=document.createElement("div");
+  let right=document.createElement("div");
+
+  left.appendChild(crearVertical("C",10));
+  left.appendChild(crearVertical("B",20));
+  left.appendChild(crearVertical("A",20));
+
+  right.appendChild(crearHorizontal("F",10));
+  right.appendChild(crearHorizontal("E",22));
+  right.appendChild(crearHorizontal("D",22));
+
+  container.appendChild(left);
+  container.appendChild(right);
+
+  cont.appendChild(container);
+}
+
+// ===== SAND =====
+function crearSand(cont){
+
+  let grupos=[
+    ["AA","BB","CC","DD"],
+    ["EE","FF","GG","HH"],
+    ["II","JJ","KK","LL"]
+  ];
+
+  grupos.forEach(g=>{
+    let fila=document.createElement("div");
+    fila.style.display="flex";
+    fila.style.gap="40px";
+
+    g.forEach(l=>{
+      fila.appendChild(crearHorizontal(l,16));
+    });
+
+    cont.appendChild(fila);
+  });
+
+  // ===== MM CORREGIDO =====
+  let wrapper=document.createElement("div");
+  wrapper.style.display="inline-block";
+
+  let title=document.createElement("div");
+  title.innerText="MM";
+  title.style.fontWeight="bold";
+  title.style.textAlign="left";
+
+  wrapper.appendChild(title);
+
+  let izq=0, der=0;
+  let col=document.createElement("div");
+
+  for(let i=1;i<=8;i++){
+    let row=document.createElement("div");
+    row.className="row";
+
+    let id1="MM"+i;
+    let id2="MM"+(17-i);
+
+    celda(id1,row);
+    celda(id2,row);
+
+    if((data[id1]||0)==0) izq++;
+    if((data[id2]||0)==0) der++;
+
+    col.appendChild(row);
+  }
+
+  wrapper.appendChild(col);
+
+  let total=document.createElement("div");
+  total.innerHTML = `${izq} ${der} | ${izq+der}`;
+  total.style.fontWeight="bold";
+  total.style.textAlign="left";
+
+  wrapper.appendChild(total);
+
+  cont.appendChild(wrapper);
+}
+
+// ===== GP =====
+function crearGP(cont){
+
+  let wrapper=document.createElement("div");
+  wrapper.style.display="flex";
+  wrapper.style.gap="20px";
+
+  let arena=document.createElement("div");
+  arena.style.width="180px";
+  arena.style.height="420px";
+  arena.style.border="2px solid black";
+  arena.style.display="flex";
+  arena.style.alignItems="center";
+  arena.style.justifyContent="center";
+  arena.innerText="Grand Prix Arena";
+
+  wrapper.appendChild(arena);
+
+  let stalls=document.createElement("div");
+
+  let filas=["J","K","L","M","N","O","P","Q","R","S","T"];
+
+  filas.forEach(f=>{
+    stalls.appendChild(crearHorizontal(f,16));
+  });
+
+  wrapper.appendChild(stalls);
+  cont.appendChild(wrapper);
+}
+
+// ===== CALCULOS =====
+function calcular(){
+
+  let tack=0,vac=0;
+
+  Object.values(data).forEach(v=>{
+    if(v==1)tack++;
+    if(v==2)vac++;
+  });
+
+  let aserrin=total[actual]-tack-vac;
+
+  let cobro=(aserrin+tack)*15;
+  let pago=aserrin*10;
+  let ganancia=cobro-pago;
 
   document.getElementById("totales").innerHTML=
-`Aserrín: ${as} | Tackron: ${t} | Vacíos: ${v}<br><br>
-Cobras: $${c}<br>
-Pagas: $${p}<br>
-Ganancia: $${c-p}`;
+`Aserrín: ${aserrin} | Tackron: ${tack} | Vacíos: ${vac}<br><br>
+Cobras: $${cobro}<br>
+Pagas: $${pago}<br>
+Ganancia: $${ganancia}`;
 }
 
 function calcularGeneral(){
 
   let areas=["north","sand","gp"];
 
-  let A=0,T=0,V=0,C=0,P=0,G=0;
+  let totalA=0,totalT=0,totalV=0;
+  let totalC=0,totalP=0,totalG=0;
 
   areas.forEach(a=>{
     let d=JSON.parse(localStorage.getItem(a))||{};
+
     let t=0,v=0;
 
     Object.values(d).forEach(x=>{
@@ -347,19 +383,25 @@ function calcularGeneral(){
     });
 
     let as=total[a]-t-v;
+
     let c=(as+t)*15;
     let p=as*10;
+    let g=c-p;
 
-    A+=as; T+=t; V+=v;
-    C+=c; P+=p; G+=(c-p);
+    totalA+=as;
+    totalT+=t;
+    totalV+=v;
+    totalC+=c;
+    totalP+=p;
+    totalG+=g;
   });
 
   document.getElementById("totalGeneral").innerHTML=
 `🌎 TOTAL GENERAL<br>
-Aserrín: ${A} | Tackron: ${T} | Vacíos: ${V}<br><br>
-Cobras: $${C}<br>
-Pagas: $${P}<br>
-Ganancia: $${G}`;
+Aserrín: ${totalA} | Tackron: ${totalT} | Vacíos: ${totalV}<br><br>
+Cobras: $${totalC}<br>
+Pagas: $${totalP}<br>
+Ganancia: $${totalG}`;
 }
 
 function resetear(){
@@ -367,6 +409,14 @@ function resetear(){
     localStorage.removeItem(actual);
     location.reload();
   }
+}
+
+function crear(){
+  let cont=document.getElementById("area");
+
+  if(actual=="north") crearNorth(cont);
+  if(actual=="sand") crearSand(cont);
+  if(actual=="gp") crearGP(cont);
 }
 
 cambiar("north");
