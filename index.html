@@ -2,7 +2,6 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
 <title>Horse App</title>
@@ -70,7 +69,7 @@ function cambiar(area){
   calcularGeneral();
 }
 
-// ===== CELDA =====
+// ===== CELDA (ARREGLADA PARA TODAS LAS ÁREAS) =====
 function celda(id,row){
   let d=document.createElement("div");
   if(!(id in data)) data[id]=0;
@@ -79,8 +78,12 @@ function celda(id,row){
 
   d.onclick=()=>{
     data[id]=(data[id]+1)%3;
-    actualizar(d,id);
     guardar();
+
+    // 🔥 ACTUALIZA TODO (esto arregla North, Sand y GP)
+    document.getElementById("area").innerHTML="";
+    crear();
+
     calcular();
     calcularGeneral();
   }
@@ -99,7 +102,7 @@ function guardar(){
   localStorage.setItem(actual, JSON.stringify(data));
 }
 
-// ===== HORIZONTAL NORMAL (Sand & GP) =====
+// ===== HORIZONTAL NORMAL =====
 function crearHorizontalFijo(letra){
 
   let block=document.createElement("div");
@@ -161,18 +164,18 @@ function crearHorizontalFijo(letra){
 
 // ===== F =====
 function crearHorizontalF(letra){
-  let topArr=[20,19,18,17,16,15,14,13,12,11];
-  let bottomArr=[1,2,3,4,5,6,7,8,9,10];
-
-  return crearHorizontalEspecial(letra, topArr, bottomArr);
+  return crearHorizontalEspecial(letra,
+    [20,19,18,17,16,15,14,13,12,11],
+    [1,2,3,4,5,6,7,8,9,10]
+  );
 }
 
 // ===== E y D =====
 function crearHorizontalED(letra){
-  let topArr=[22,21,20,19,18,17,16,15,14,13,12];
-  let bottomArr=[1,2,3,4,5,6,7,8,9,10,11];
-
-  return crearHorizontalEspecial(letra, topArr, bottomArr);
+  return crearHorizontalEspecial(letra,
+    [22,21,20,19,18,17,16,15,14,13,12],
+    [1,2,3,4,5,6,7,8,9,10,11]
+  );
 }
 
 // ===== GENERADOR ESPECIAL =====
@@ -235,7 +238,7 @@ function crearHorizontalEspecial(letra, topArr, bottomArr){
   return block;
 }
 
-// ===== VERTICAL PERSONALIZADO =====
+// ===== VERTICAL =====
 function crearVerticalPersonalizado(letra, pares){
 
   let block=document.createElement("div");
@@ -277,7 +280,6 @@ function crearVerticalPersonalizado(letra, pares){
 
 // ===== NORTH =====
 function crearNorth(cont){
-
   let container=document.createElement("div");
   container.style.display="flex";
   container.style.gap="100px";
@@ -285,22 +287,9 @@ function crearNorth(cont){
   let left=document.createElement("div");
   let right=document.createElement("div");
 
-  // C
-  left.appendChild(crearVerticalPersonalizado("C",[
-    [6,5],[7,4],[8,3],[9,2],[10,1]
-  ]));
-
-  // B
-  left.appendChild(crearVerticalPersonalizado("B",[
-    [11,10],[12,9],[13,8],[14,7],[15,6],
-    [16,5],[17,4],[18,3],[19,2],[20,1]
-  ]));
-
-  // A
-  left.appendChild(crearVerticalPersonalizado("A",[
-    [11,10],[12,9],[13,8],[14,7],[15,6],
-    [16,5],[17,4],[18,3],[19,2],[20,1]
-  ]));
+  left.appendChild(crearVerticalPersonalizado("C",[[6,5],[7,4],[8,3],[9,2],[10,1]]));
+  left.appendChild(crearVerticalPersonalizado("B",[[11,10],[12,9],[13,8],[14,7],[15,6],[16,5],[17,4],[18,3],[19,2],[20,1]]));
+  left.appendChild(crearVerticalPersonalizado("A",[[11,10],[12,9],[13,8],[14,7],[15,6],[16,5],[17,4],[18,3],[19,2],[20,1]]));
 
   right.appendChild(crearHorizontalF("F"));
   right.appendChild(crearHorizontalED("E"));
@@ -311,9 +300,8 @@ function crearNorth(cont){
   cont.appendChild(container);
 }
 
-// ===== SAND (NO TOCADO) =====
+// ===== SAND =====
 function crearSand(cont){
-
   let grupos=[
     ["AA","BB","CC","DD"],
     ["EE","FF","GG","HH"],
@@ -326,10 +314,7 @@ function crearSand(cont){
     fila.style.gap="40px";
     fila.style.marginBottom="20px";
 
-    g.forEach(l=>{
-      fila.appendChild(crearHorizontalFijo(l));
-    });
-
+    g.forEach(l=> fila.appendChild(crearHorizontalFijo(l)));
     cont.appendChild(fila);
   });
 
@@ -348,9 +333,8 @@ function crearSand(cont){
   cont.appendChild(wrapper);
 }
 
-// ===== GP (NO TOCADO) =====
+// ===== GP =====
 function crearGP(cont){
-
   let wrapper=document.createElement("div");
   wrapper.style.display="flex";
   wrapper.style.gap="20px";
@@ -369,9 +353,7 @@ function crearGP(cont){
   let stalls=document.createElement("div");
   let filas=["J","K","L","M","N","O","P","Q","R","S","T"];
 
-  filas.forEach(f=>{
-    stalls.appendChild(crearHorizontalFijo(f));
-  });
+  filas.forEach(f=> stalls.appendChild(crearHorizontalFijo(f)));
 
   wrapper.appendChild(stalls);
   cont.appendChild(wrapper);
@@ -396,7 +378,6 @@ Cobras: $${cobro}<br>Pagas: $${pago}<br>Ganancia: $${ganancia}`;
 }
 
 function calcularGeneral(){
-
   let areas=["north","sand","gp"];
   let totalA=0,totalT=0,totalV=0,totalC=0,totalP=0,totalG=0;
 
@@ -433,7 +414,6 @@ function resetear(){
 
 function crear(){
   let cont=document.getElementById("area");
-
   if(actual=="north") crearNorth(cont);
   if(actual=="sand") crearSand(cont);
   if(actual=="gp") crearGP(cont);
